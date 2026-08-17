@@ -21,14 +21,21 @@ def create_icon(input_path: Path, output_path: Path, size: int = 256) -> None:
 
 
 def create_shortcut(target_script: Path, shortcut_path: Path, icon_path: Path) -> None:
-    icon_line = f"$Shortcut.IconLocation = '{icon_path},0'"
+    # Escapar las comillas en las rutas para PowerShell
+    python_exe_escaped = str(PYTHON_EXE).replace("'", "''")
+    target_script_escaped = str(target_script).replace("'", "''")
+    shortcut_path_escaped = str(shortcut_path).replace("'", "''")
+    icon_path_escaped = str(icon_path).replace("'", "''")
+    project_dir_escaped = str(PROJECT_DIR).replace("'", "''")
+    
+    icon_line = f"$Shortcut.IconLocation = '{icon_path_escaped},0'"
     ps_script = f"""
 $WshShell = New-Object -ComObject WScript.Shell
-$Shortcut = $WshShell.CreateShortcut('{shortcut_path}')
-$Shortcut.TargetPath = '{PYTHON_EXE}'
-$Shortcut.Arguments = '"{target_script}"'
-$Shortcut.WorkingDirectory = '{PROJECT_DIR}'
-if (Test-Path '{icon_path}') {{ {icon_line} }}
+$Shortcut = $WshShell.CreateShortcut('{shortcut_path_escaped}')
+$Shortcut.TargetPath = '{python_exe_escaped}'
+$Shortcut.Arguments = '"{target_script_escaped}"'
+$Shortcut.WorkingDirectory = '{project_dir_escaped}'
+if (Test-Path '{icon_path_escaped}') {{ {icon_line} }}
 $Shortcut.Save()
 """
     subprocess.run(["powershell", "-NoProfile", "-Command", ps_script], check=True)
