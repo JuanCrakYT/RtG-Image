@@ -1,6 +1,6 @@
 # RtG Save Format Specification v0.406
 
-> **Hecho po:** @JuanCrakYT
+> **Hecho por:** @JuanCrakYT
 > **Documento:** Especificación Técnica de Formato de Guardado (Ingeniería Inversa)  
 > **Juego Objetivo:** Road To Gramby's (Roblox)  
 > **Versión de la Especificación:** v1.101  
@@ -129,10 +129,10 @@ Por lo tanto, `TipoLocal` debe tratarse como un identificador observado, no como
 |   14 | PotatoEngine      |     1     | Motor básico del juego.                                      |
 |   15 | Joint             |     2     | Unión mecánica entre piezas.                                 |
 |   16 | RemoteButton      |     1     | Botón remoto.                                                |
-|   17 | Ramp              |     —     | Rampa. Utiliza únicamente EphemeralAttachments.              |
+|   17 | Ramp              |     —     | Rampa.                                                       |
 |   18 | Lock              |     1     | Bloque de bloqueo.                                           |
 |   19 | Connector         |     5     | Conector esférico.                                           |
-|   20 | Tooth             |     —     | Diente. Solo utiliza EphemeralAttachments.                   |
+|   20 | Tooth             |     —     | Diente.                                                      |
 |   21 | Roof              |     1     | Techo.                                                       |
 |   22 | Switch            |     1     | Interruptor.                                                 |
 |   23 | Radio             |     1     | Radio configurable.                                          |
@@ -176,10 +176,10 @@ Por lo tanto, `TipoLocal` debe tratarse como un identificador observado, no como
 |   61 | DoorC             |     1     | Variante C de puerta.                                        |
 |   62 | SpringJuice       |     1     | Consumible.                                                  |
 |   63 | WoodenChair       |     2     | Silla de madera.                                             |
-|   64 | Chassis           |     —     | Chasis. Solo utiliza EphemeralAttachments.                   |
+|   64 | Chassis           |     —     | Chasis.                                                      |
 |   65 | FuelTank          |     2     | Tanque de combustible.                                       |
 |   66 | Mag               |     1     | Cargador de munición.                                        |
-|   67 | Keyboard          |     —     | Teclado. Solo utiliza EphemeralAttachments.                  |
+|   67 | Keyboard          |     —     | Teclado.                                                     |
 |   68 | RiotShield        |     —     | Escudo antidisturbios.                                       |
 |   69 | Spoiler           |     2     | Alerón.                                                      |
 |   70 | Jug               |     —     | Jarra.                                                       |
@@ -218,7 +218,7 @@ Por lo tanto, `TipoLocal` debe tratarse como un identificador observado, no como
 |  103 | Sledge            |     1     | Mazo.                                                        |
 |  104 | Delayer           |     2     | Retardo lógico.                                              |
 |  105 | Looper            |     1     | Repetidor temporal.                                          |
-|  106 | wad               |     —     | Objeto auxiliar con EphemeralAttachments.                    |
+|  106 | wad               |     —     | Objeto que te permite tener dinero en servidores públicos    |
 |  107 | BouncyBall        |     6     | Pelota rebotadora.                                           |
 |  108 | Recorder          |     1     | Grabadora.                                                   |
 |  109 | DoorD             |     1     | Variante D de puerta.                                        |
@@ -234,10 +234,11 @@ Por lo tanto, `TipoLocal` debe tratarse como un identificador observado, no como
 |  119 | PolaroidCamera    |     1     | Cámara Polaroid.                                             |
 |  120 | PolaroidPhoto     |     1     | Fotografía Polaroid.                                         |
 |  121 | Successor         |     2     | A Worthy Successor.                                          |
-|  122 | Body              |     —     | Cuerpo de Fricklet.                                          |
+|  122 | Body              |     —     | Cuerpo de Fricklet. Sin datos de conexión                    |
 |  123 | Fricklet          |     —     | Fricklet.                                                    |
 |  124 | SuperPowerClock   |     —     | Super Power Clock.                                           |
 |  125 | YibYib            |     —     | YibYib.                                                      |
+|  126 | GasCap            |     1     | Tapa el puerto de gasolina de un carro                       |
 ---
 
 > **Importante:** Aquí aparecen algunos objetos con "—" en `TipoLocal`, y esas entradas se describen como *objetos que no pueden conectarse a otros.*
@@ -382,13 +383,13 @@ flowchart TD
 
 ### 7.2 Importancia del Orden del Arreglo (✅ Confirmado)
 > **Hecho por:** @JuanCrakYT
-Dado que las referencias jerárquicas se resuelven mediante índices numéricos del arreglo, **el orden relativo de los elementos dentro del JSON principal es crítico**:
+Dado que las referencias jerárquicas se resuelven mediante índices numéricos del arreglo, **el orden relativo de los elementos dentro del JSON principal es crítico:**
 * Reordenar elementos arbitrariamente provoca la ruptura de los punteros jerárquicos.
 * Un orden inconsistente con el grafo de dependencias o con referencias fuera de rango provoca un fallo de carga con el mensaje `"Build inválida"`.
 
 ### 7.3 Ausencia de Coordenadas Absolutas Directas (✅ Confirmado)
 > **Hecho por:** @JuanCrakYT
-El formato de guardado de RtG **no almacena coordenadas 3D absolutas para los bloques estándar**:
+El formato de guardado de RtG **no almacena coordenadas 3D absolutas para los bloques estándar:**
 * Toda la posición física en el espacio tridimensional se reconstruye recursivamente evaluando la cadena de referencias a partir del objeto raíz (`Base`).
 * Cada bloque hijo calcula su offset espacial automáticamente a partir del punto de anclaje de su padre (`PuntoPadre`).
 
@@ -710,7 +711,7 @@ En objetos de tipo `Sprite`, se observó un comportamiento diferenciado:
 
 ## 14. Comportamiento del cargador
 > **Hecho por:** @JuanCrakYT
-Existe una marcada asimetría entre el **Constructor Visual del Juego (UI Editor)** y el **Cargador de Archivos (Save Loader)**:
+Existe una marcada asimetría entre el **Constructor Visual del Juego (UI Editor)** y el **Cargador de Archivos (Save Loader):**
 * El editor del juego impone restricciones estrictas de colisión, adyacencia y colocación.
 * El cargador de archivos es un motor interpretativo que procesa estructuras avanzadas no construibles manualmente, permitiendo inyección espacial y desvinculación geométrica.
 
@@ -787,7 +788,7 @@ Ejemplo:
 * **Resultado:** El bloque carga correctamente con color rojo. Los campos extra son omitidos de forma segura.
 
 ### 15.2 Rigidez de Referencias Estructurales (✅ Confirmado)
-A diferencia de las propiedades adicionales, **RtG NO intenta autorreparar o crear referencias faltantes**:
+A diferencia de las propiedades adicionales, **RtG NO intenta autorreparar o crear referencias faltantes:**
 * Si un objeto referencia un `ÍndicePadre` fuera de rango o un `{UUID}` inexistente en la tabla de attachments, el cargador aborta la lectura o deja el objeto con un fallo de referencia.
 
 ### 15.3 Matriz de Modificaciones y Comportamientos de Carga
@@ -926,7 +927,7 @@ Las siguientes líneas de investigación han sido identificadas para guiar el de
 | `ActivationHeight`     | `Number`             | `AltitudeSensor`        |
 | `Volume`               | `Number`             | `Radio`                 |
 | `Channel`              | `Number`             | `Radio`                 |
-| `CustomTrack`          | `String`             | `Radio`                 |
+| `CustomTrack`          | `Integer`            | `Radio`                 |
 | `On`                   | `Boolean`            | `Radio`                 |
 | `Phrase`               | `String`             | `PolaroidPhoto`         |
 ---
@@ -994,5 +995,5 @@ Las siguientes líneas de investigación han sido identificadas para guiar el de
 ---
 
 # RtG Build Format
-> **Documento:** El archivo no se encuentra aquí, entre a "obj_ids" para verlo.
+> **Documento:** El archivo no se encuentra aquí, entre a "[obj_ids](obj_ids-spanish.md)" para verlo.
 > **Hecho por:** @JuanCrakYT
