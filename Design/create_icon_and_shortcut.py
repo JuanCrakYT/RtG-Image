@@ -9,8 +9,8 @@ from PIL import Image
 PROJECT_DIR = Path(__file__).resolve().parent.parent
 SOURCE_IMAGE = PROJECT_DIR / "Design" / "logotipe.png"
 OUTPUT_ICON = PROJECT_DIR / "Design" / "logotipe.ico"
-DESKTOP_PATH = Path(os.path.expanduser("~")) / "Desktop" / "RtG Converter (Draw).lnk"
-PYTHON_EXE = sys.executable
+DESKTOP_PATH = Path(os.path.expanduser("~")) / "Desktop" / "RtG Image.lnk"
+PYTHON_EXE = Path(sys.executable).with_name("pythonw.exe")
 MAIN_SCRIPT = PROJECT_DIR / "main.py"
 
 
@@ -21,6 +21,9 @@ def create_icon(input_path: Path, output_path: Path, size: int = 256) -> None:
 
 
 def create_shortcut(target_script: Path, shortcut_path: Path, icon_path: Path) -> None:
+    if not PYTHON_EXE.exists():
+        raise FileNotFoundError(f"No se encontró el ejecutable sin consola: {PYTHON_EXE}")
+
     # Escapar las comillas en las rutas para PowerShell
     python_exe_escaped = str(PYTHON_EXE).replace("'", "''")
     target_script_escaped = str(target_script).replace("'", "''")
@@ -36,6 +39,7 @@ $Shortcut.TargetPath = '{python_exe_escaped}'
 $Shortcut.Arguments = '"{target_script_escaped}"'
 $Shortcut.WorkingDirectory = '{project_dir_escaped}'
 if (Test-Path '{icon_path_escaped}') {{ {icon_line} }}
+$Shortcut.Description = 'RtG Image'
 $Shortcut.Save()
 """
     subprocess.run(["powershell", "-NoProfile", "-Command", ps_script], check=True)
